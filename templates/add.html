@@ -2,89 +2,154 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <title>ინვენტარის დამატება</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <script>
-    function showOtherManufacturer(sel) {
-        var input = document.getElementById('otherManufacturerInput');
-        if(sel.value === 'სხვა/არაბრენდი') {
-            input.style.display = '';
-        } else {
-            input.style.display = 'none';
+    <title>ახალი ინვენტარის დამატება</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6fa; font-family: 'Segoe UI', Sylfaen, sans-serif;}
+        .sidebar { min-height: 100vh; background: #212d3b; color: #fff; width: 230px; position: fixed; left: 0; top: 0; z-index: 1030;}
+        .sidebar .nav-link, .sidebar .navbar-brand { color: #e9ecef; font-weight: 500; }
+        .sidebar .nav-link.active, .sidebar .nav-link:hover { background: #335078; color: #fff; }
+        .sidebar .navbar-brand { font-size: 1.3rem; letter-spacing: 1px; padding: 1.2rem 1rem 0.5rem 1rem; }
+        .main-content { margin-left: 230px; padding: 32px 16px 16px 16px; min-height: 100vh;}
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;}
+        .form-card { background: #fff; border-radius: 1.1rem; box-shadow: 0 4px 24px #0001; max-width: 660px; margin:auto; padding:32px 30px 24px 30px;}
+        @media (max-width: 900px) {
+            .sidebar { width: 70px; }
+            .sidebar .nav-link span, .sidebar .navbar-brand span { display: none; }
+            .main-content { margin-left: 70px; }
         }
-    }
-    </script>
+        @media (max-width: 600px) {
+            .main-content { margin-left: 0; padding: 9px; }
+            .sidebar { left: -230px; }
+            .sidebar.show { left: 0; }
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <h2 class="mb-4">ახალი ინვენტარის დამატება</h2>
-    <form method="POST" class="row g-3">
-        <div class="col-md-4">
-            <label class="form-label">ინვენტარის ნომერი</label>
-            <input name="inv_number" class="form-control" value="{{ inv_number }}" required>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">სახეობა</label>
-            <select name="type" class="form-select" required>
-                {% for t in types %}
-                <option value="{{ t }}">{{ t }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">მწარმოებელი</label>
-            <select name="manufacturer" class="form-select" id="manufacturerSelect" onchange="showOtherManufacturer(this)" required>
-                {% for m in manufacturers %}
-                <option value="{{ m }}">{{ m }}</option>
-                {% endfor %}
-            </select>
-            <input type="text" name="other_manufacturer" class="form-control mt-2" id="otherManufacturerInput" placeholder="სხვა ბრენდი" style="display:none;">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">მოდელი</label>
-            <input name="model" class="form-control">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">სერიული ნომერი</label>
-            <input name="serial" class="form-control">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">სტატუსი</label>
-            <select name="status" class="form-select">
-                {% for s in status_choices %}
-                <option value="{{ s }}">{{ s }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">მფლობელი</label>
-            <input name="owner" class="form-control">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">შესყიდვის თარიღი</label>
-            <input name="purchase_date" class="form-control" type="date" value="{{ today }}">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">მდებარეობა</label>
-            <input name="location" class="form-control">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">დადგმის თარიღი</label>
-            <input name="install_date" class="form-control" type="date" value="{{ today }}">
-        </div>
-        <div class="col-12">
-            <label class="form-label">ტექნიკური აღწერა</label>
-            <input name="description" class="form-control">
-        </div>
-        <div class="col-12">
-            <label class="form-label">კომენტარი</label>
-            <input name="comment" class="form-control">
-        </div>
-        <div class="col-12 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">დამატება</button>
-            <a href="{{ url_for('index') }}" class="btn btn-secondary">სია</a>
-        </div>
-    </form>
+<body>
+<nav class="sidebar d-flex flex-column flex-shrink-0 px-3 py-3">
+    <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center mb-3 mb-md-0 me-md-auto">
+        <i class="bi bi-hdd-network-fill me-2"></i>
+        <span>IT ინვენტარი</span>
+    </a>
+    <hr class="mb-2 mt-0">
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="{{ url_for('index') }}" class="nav-link">
+                <i class="bi bi-list-ul"></i> <span>მთავარი</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('add') }}" class="nav-link active">
+                <i class="bi bi-plus-circle"></i> <span>ახალი ჩანაწერი</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('import_csv') }}" class="nav-link">
+                <i class="bi bi-upload"></i> <span>იმპორტი CSV</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('export') }}" class="nav-link">
+                <i class="bi bi-download"></i> <span>ექსპორტი CSV</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ url_for('logout') }}" class="nav-link text-danger mt-2">
+                <i class="bi bi-box-arrow-right"></i> <span>გასვლა</span>
+            </a>
+        </li>
+    </ul>
+    <footer class="mt-auto pt-2 small text-secondary" style="font-size:12px;">
+        © 2025 NewHospitals
+    </footer>
+</nav>
+<div class="main-content">
+    <div class="topbar">
+        <button class="sidebar-toggler" onclick="document.querySelector('.sidebar').classList.toggle('show')">
+            <i class="bi bi-list"></i>
+        </button>
+        <div class="user-info ms-auto text-secondary">ახალი ჩანაწერი</div>
+    </div>
+    <div class="form-card">
+        <h3 class="mb-4 text-center">ახალი ინვენტარის დამატება</h3>
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">სახეობა</label>
+                    <select name="type" class="form-select" required>
+                        <option value="">აირჩიე...</option>
+                        <option>კომპიუტერი</option>
+                        <option>ნოუთბუქი</option>
+                        <option>მონიტორი</option>
+                        <option>პრინტერი</option>
+                        <option>სკანერი</option>
+                        <option>UPS</option>
+                        <option>სხვა</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">მწარმოებელი</label>
+                    <select name="manufacturer" class="form-select">
+                        <option value="">აირჩიე...</option>
+                        <option>DELL</option>
+                        <option>HP</option>
+                        <option>Lenovo</option>
+                        <option>Acer</option>
+                        <option>Asus</option>
+                        <option>Apple</option>
+                        <option>Canon</option>
+                        <option>Samsung</option>
+                        <option>სხვა</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">მოდელი</label>
+                    <input name="model" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">სერიული ნომერი</label>
+                    <input name="serial" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">სტატუსი</label>
+                    <select name="status" class="form-select" required>
+                        <option>აქტიური</option>
+                        <option>არაქტიური</option>
+                        <option>დაზიანებული</option>
+                        <option>სათადარიგო</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">მფლობელი</label>
+                    <input name="owner" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">დადგმის თარიღი</label>
+                    <input name="install_date" class="form-control" type="date">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">მდებარეობა</label>
+                    <input name="location" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">ტექნიკური აღწერა</label>
+                    <input name="description" class="form-control">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">კომენტარი</label>
+                    <input name="comment" class="form-control">
+                </div>
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">დამატება</button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">სია</a>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
