@@ -1,0 +1,10 @@
+it-inventory/
+├── app.py
+├── requirements.txt
+├── README.md
+└── templates/
+    ├── index.html
+    ├── add.html
+    ├── edit.html
+    ├── login.html
+    └── register.html
